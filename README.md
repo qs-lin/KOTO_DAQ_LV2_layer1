@@ -13,6 +13,3 @@ Send\
 Read the payload from ram_data based on the size of each event. 
 
  
-```
-./collect 1 8
-```
