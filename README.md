@@ -6,6 +6,9 @@ Write\
 (ii)  the size of each ADC packet into ram_es\
 (iii) the L1A of each ADC packet into ram_L1A\
 \
+Compress\
+Apply lossless compression to the data\
+\
 Check\
 The L1A of packets from 16 ADCs to ensure they are from the same event \
 \
