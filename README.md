@@ -5,6 +5,7 @@ Write\
 (i)   the payload of each ADC packet into ram_data\
 (ii)  the size of each ADC packet into ram_es\
 (iii) the L1A of each ADC packet into ram_L1A\
+\
 Compress\
 Apply lossless compression to the data
 \
