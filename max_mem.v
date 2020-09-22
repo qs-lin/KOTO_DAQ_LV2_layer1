@@ -14,7 +14,7 @@ begin
   if(reset)
   begin
     maximum       = 16'b0;
-	 max_mem_usage = 16'b0;
+    max_mem_usage = 16'b0;
   end
 
   maximum = (current_mem_usage > maximum) ? current_mem_usage : maximum;
