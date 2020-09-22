@@ -24,13 +24,13 @@ module true_ram_sclk
 	begin
 		if(rd_ena)
 		begin
-		  q <= ram[rd_addr];
-		  dval <= 1'b1;
+		    q <= ram[rd_addr];
+		    dval <= 1'b1;
 		end
 
 		else
 ////			q_a <= 16'b0;
-		  dval <= 1'b0;
+		    dval <= 1'b0;
 	end
 	
 endmodule	

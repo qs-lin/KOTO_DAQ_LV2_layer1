@@ -20,29 +20,29 @@ output reg data_wr_ena = 1'b0;
 output reg[15:0] data_wr_addr = 16'b0;
 output reg[5:0] err=6'b0;   
 output reg[13:0] L1A = 14'b0;
-									// the L1A number of an event
+                                    // the L1A number of an event
 output reg[10:0] es_out = 11'b0;
-									// the size of an event;
+                                    // the size of an event;
 
 
-									// write data to mem_data
-									// 2019/11/12: 2^16=65536. This will exceeds the maximum capacity of our OFC
-									// TODO:
-									// we have to set upper limit at 50k
+    // write data to mem_data
+    // 2019/11/12: 2^16=65536. This will exceeds the maximum capacity of our OFC
+    // TODO:
+    // we have to set upper limit at 50k
 								
 									
 output reg es_wr_ena = 1'b0;
 //output reg[15:0] es_wr_addr = 16'b0;
-									// write data to mem_es
-									// 2019/11/12: don't need this large size. 
+// write data to mem_es
+// 2019/11/12: don't need this large size. 
 output reg[7:0] es_wr_addr = 8'b0;
-									// since mem_data has 50k, each event is around ~1k/3 (loss-less compression by Michigan). So the total event number is around~200.
+  // since mem_data has 50k, each event is around ~1k/3 (loss-less compression by Michigan). So the total event number is around~200.
 									
 output reg L1A_wr_ena = 1'b0;
 output reg[7:0] L1A_wr_addr = 8'b0;									
-									// write data to mem_L1A
+  // write data to mem_L1A
 
-									
+
 
 reg lock = 1'b0;           //will be on once receive the 8 headers consecutively
 reg[15:0] pipe[5:0];       //6 ADC header
@@ -71,28 +71,28 @@ begin
   if(reset)
   begin
     cnt_h                = 4'b0;
-	 cnt_los              = 6'b0;
-	 cnt_o                = 6'b0;
-	 cnt_e                = 11'b0;
-	 cnt_f                = 3'b0;
-	 cnt_f_error          = 3'b0;
-	 timer                = 4'b0;
-	 timer2               = 4'b0;
-	 finish               = 1'b0;
-	 err                  = 6'b0;
-	 lock                 = 1'b0;
-	 send                 = 1'b0;
-	 hold                 = 1'b0; 
-	 data_wr_addr         = 16'b0;
+    cnt_los              = 6'b0;
+    cnt_o                = 6'b0;
+    cnt_e                = 11'b0;
+    cnt_f                = 3'b0;
+    cnt_f_error          = 3'b0;
+    timer                = 4'b0;
+    timer2               = 4'b0;
+    finish               = 1'b0;
+    err                  = 6'b0;
+    lock                 = 1'b0;
+    send                 = 1'b0;
+    hold                 = 1'b0; 
+    data_wr_addr         = 16'b0;
     data_wr_ena          = 1'b0;	 
-	 es_wr_addr           = 8'b0;
+    es_wr_addr           = 8'b0;
     es_wr_ena            = 1'b0;	 
-	 L1A_wr_addr          = 8'b0;
+    L1A_wr_addr          = 8'b0;
     L1A_wr_ena           = 1'b0;	 
-	 next_evt_start       = 1'b0;
-	 L1A                  = 14'b0;
-	 es_out               = 11'b0;
-	 data_out             = 16'b0;
+    next_evt_start       = 1'b0;
+    L1A                  = 14'b0;
+    es_out               = 11'b0;
+    data_out             = 16'b0;
   end
 
   pipe[5] = pipe[4];
@@ -106,47 +106,47 @@ begin
   if(~lock)
   begin
     cnt_h = (din[15]==1'b1 && din[14]==1'b1) ? cnt_h+1'b1 : 1'b0;  // receive the 8 headers consecutively
-	 cnt_f_error =  (din[15]==1'b0 && din[14]==1'b1 && din[13]==1'b1 && din[12]==1'b0)	? cnt_f_error+1'b1 : 1'b0;
-	 if(cnt_f_error>3'b011)           // receive 3 consecutive footer before receiving 6 consecutive headers. Something is wrong --- miss some headers for this event
-	   begin
-		err[4]=1'b1;
-		//cnt_f_error = 3'b0;
-		end
+    cnt_f_error =  (din[15]==1'b0 && din[14]==1'b1 && din[13]==1'b1 && din[12]==1'b0)	? cnt_f_error+1'b1 : 1'b0;
+    if(cnt_f_error>3'b011)           // receive 3 consecutive footer before receiving 6 consecutive headers. Something is wrong --- miss some headers for this event
+      begin
+        err[4]=1'b1;
+        //cnt_f_error = 3'b0;
+      end
   end
   else
   begin
     if(din[15]==1'b1 && din[14]==1'b1)
-	   cnt_los = cnt_f == 1'b0 ? cnt_los+1'b1 : cnt_los;
+      cnt_los = cnt_f == 1'b0 ? cnt_los+1'b1 : cnt_los;
     else if(din[15]==1'b1 && din[14]==1'b0)	
-		cnt_e = cnt_e+1'b1;
-	 else if(din[15]==1'b0 && din[14]==1'b1 && din[13]==1'b1 && din[12]==1'b0)	
-	   cnt_f = cnt_f+1'b1;
-	 else
-		cnt_o = cnt_o + 1'b1;
+      cnt_e = cnt_e+1'b1;
+    else if(din[15]==1'b0 && din[14]==1'b1 && din[13]==1'b1 && din[12]==1'b0)	
+      cnt_f = cnt_f+1'b1;
+    else
+      cnt_o = cnt_o + 1'b1;
 
   end	 
   
   
   if(cnt_h==3'b110 && ~lock)
   begin
-	 //LOS = pipe[4][13];      //pipe[4] correspond to adc_2 and adc_2[13] is LOS, which LOS=1 when loss-compression is used 
-	 err[0] = (pipe[4][13]==use_loss) ? 1'b0:1'b1; 
-	 //spill_numver = {pipe[1][5],pipe[1][13:6]};   //pipi[1] adc_5 record spill number
-	 err[1] = ( {pipe[1][5],pipe[1][13:6]} == spill) ? 1'b0 : 1'b1;
-	 err[5] = ( pipe[1][4:0] == ADC_slot ) ? 1'b0 : 1'b1;
-	 L1A = pipe[0][13:0];
-	 lock = 1'b1;
+    //LOS = pipe[4][13];      //pipe[4] correspond to adc_2 and adc_2[13] is LOS, which LOS=1 when loss-compression is used 
+    err[0] = (pipe[4][13]==use_loss) ? 1'b0:1'b1; 
+    //spill_numver = {pipe[1][5],pipe[1][13:6]};   //pipi[1] adc_5 record spill number
+    err[1] = ( {pipe[1][5],pipe[1][13:6]} == spill) ? 1'b0 : 1'b1;
+    err[5] = ( pipe[1][4:0] == ADC_slot ) ? 1'b0 : 1'b1;
+    L1A = pipe[0][13:0];
+    lock = 1'b1;
     L1A_wr_ena = 1'b1;
-	 L1A_wr_addr = L1A_wr_addr + 1'b1;
-	 cnt_f_error = 3'b0;
+    L1A_wr_addr = L1A_wr_addr + 1'b1;
+    cnt_f_error = 3'b0;
   end
   else
   begin
-	 lock = lock;
-	 err = err;
-	 L1A = L1A;
-	 L1A_wr_ena = 1'b0;
-	 L1A_wr_addr = L1A_wr_addr;
+    lock = lock;
+    err = err;
+    L1A = L1A;
+    L1A_wr_ena = 1'b0;
+    L1A_wr_addr = L1A_wr_addr;
   end	 
 	 
   timer = cnt_f>1'b0 ? timer+1'b1 : 1'b0;   //once receive footer, timer will click. 	 
@@ -163,24 +163,24 @@ begin
   begin
     err[3] = cnt_o > 1'b0 ? 1'b1:1'b0;
     es_out = cnt_h + cnt_los + cnt_e + cnt_f + cnt_o;
-	 cnt_h = next_evt_start ? 1'b1:4'b0;
-	 cnt_los = 6'b0;
-	 cnt_o = 6'b0;
-	 cnt_e = 11'b0;
-	 cnt_f = 3'b0;
-	 lock = 1'b0;
-	 hold = 1'b1;
-	 es_wr_ena = 1'b1;
-	 es_wr_addr = es_wr_addr + 1'b1;
-	 //send = 1'b0;
+    cnt_h = next_evt_start ? 1'b1:4'b0;
+    cnt_los = 6'b0;
+    cnt_o = 6'b0;
+    cnt_e = 11'b0;
+    cnt_f = 3'b0;
+    lock = 1'b0;
+    hold = 1'b1;
+    es_wr_ena = 1'b1;
+    es_wr_addr = es_wr_addr + 1'b1;
+    //send = 1'b0;
   end
   else
   begin
     es_wr_ena = 1'b0;
   end
   
-  timer2 = hold ? timer2+1'b1: 1'b0;     //this timer is used to read data from the pipeline. Since the newest data (last footer) 
-													  //is located in pipeline[0]. So we need 6 more clocks to read it out.
+  timer2 = hold ? timer2+1'b1: 1'b0;    //this timer is used to read data from the pipeline. Since the newest data (last footer) 
+                                        //is located in pipeline[0]. So we need 6 more clocks to read it out.
 
   if(timer2 > 4'b110)
   begin
@@ -190,20 +190,20 @@ begin
   else
   begin
     send = send;
-	 hold = hold;
+    hold = hold;
   end
   
   send = lock ? 1'b1 : send;
   if(send)
   begin
     data_wr_ena = 1'b1;
-	 data_wr_addr = data_wr_addr + 1'b1;
+    data_wr_addr = data_wr_addr + 1'b1;
     data_out = pipe[5];
   end
   else
   begin
     data_wr_ena = 1'b0;
-	 data_wr_addr = data_wr_addr;
+    data_wr_addr = data_wr_addr;
     data_out = 16'b0;
   end
 

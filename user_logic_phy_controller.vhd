@@ -11,7 +11,7 @@ entity user_logic_phy_controller is
     phy_mgmt_waitrequest  : in  std_logic;
     phy_mgmt_write        : out std_logic;
     phy_mgmt_writedata    : out std_logic_vector(31 downto 0) := (others => '0')
-	 );
+    );
 end entity user_logic_phy_controller;
 
 architecture behavioral of user_logic_phy_controller is
@@ -22,30 +22,30 @@ begin
 	proc_sync : process (phy_mgmt_clk, phy_mgmt_clk_reset, phy_mgmt_waitrequest, phy_mgmt_fsm) is
 	begin
 		if (phy_mgmt_clk_reset = '1') then
-			phy_mgmt_address <= "000000000";
-			phy_mgmt_read <= '0';
-			phy_mgmt_write <= '0';
+			phy_mgmt_address   <= "000000000";
+			phy_mgmt_read      <= '0';
+			phy_mgmt_write     <= '0';
 			phy_mgmt_writedata <= x"00000000";
 			phy_mgmt_fsm <= idle;
 		elsif (phy_mgmt_waitrequest = '1') then -- This might be a problem, since the phy_mgmt_* values need to be constant during phy_mgmt_waitrequest=1
-			phy_mgmt_address <= "000000000";
-			phy_mgmt_read <= '0';
-			phy_mgmt_write <= '0';
+			phy_mgmt_address   <= "000000000";
+			phy_mgmt_read      <= '0';
+			phy_mgmt_write     <= '0';
 			phy_mgmt_writedata <= x"00000000";
-			phy_mgmt_fsm <= idle;
+			phy_mgmt_fsm       <= idle;
 		else
 			case phy_mgmt_fsm is
 				when idle =>
-					phy_mgmt_address <= "000000000";
-					phy_mgmt_read <= '0';
-					phy_mgmt_write <= '0';
+					phy_mgmt_address   <= "000000000";
+					phy_mgmt_read      <= '0';
+					phy_mgmt_write     <= '0';
 					phy_mgmt_writedata <= x"00000000";
-					phy_mgmt_fsm <= requestsync;
+					phy_mgmt_fsm       <= requestsync;
 				when requestsync =>
 					phy_mgmt_address		<= "010000101"; -- 0x085
 					phy_mgmt_read			<= '0';
 					phy_mgmt_write			<= '1';
-					phy_mgmt_writedata	<= x"00000001";
+					phy_mgmt_writedata	    <= x"00000001";
 					phy_mgmt_fsm			<= requestsync;
 			end case;
 		end if;

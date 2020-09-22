@@ -16,29 +16,29 @@ begin
   begin
     timer    = 10'b0;
     dval     = 1'b0;
-	 aligned  = 1'b0;
-	 tlk_pipe = 1'b0;
+    aligned  = 1'b0;
+    tlk_pipe = 1'b0;
   end
 
   if(~LIVE)
   begin
     timer    = 10'b0;
     dval     = 1'b0;
-	 aligned  = 1'b0;
-	 tlk_pipe = 1'b0;    
+    aligned  = 1'b0;
+    tlk_pipe = 1'b0;    
   end
   
   if(tlk_err == 1'b0 && tlk_pipe == 1'b1) //falling edge of tlk_err means alignment success
     aligned = 1'b1;
   else 
-	 aligned = aligned;
+    aligned = aligned;
 	 
   timer = aligned ? timer+1'b1 : 10'b0;
 
   if(timer==10'b1111_1010_00)
     dval = 1'b1;
   else 
-	 dval = dval;
+    dval = dval;
   
   
   

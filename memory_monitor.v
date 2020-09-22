@@ -25,29 +25,29 @@ begin
   if(wr_addr>=rd_addr)
   begin
     if(n1>n2)
-	 begin
-	   usage = limit;
-		error = 1'b1;	 
-	 end
-	 else
-	 begin
-	   usage = wr_addr - rd_addr;
-	   error = error;
-	 end
+    begin
+      usage = limit;
+      error = 1'b1;	 
+    end
+  else
+  begin
+    usage = wr_addr - rd_addr;
+    error = error;
+  end
   end	
   
   else
   begin
     if(n1>(n2+1'b1))
-	 begin
-	   error = 1'b1;
-	   usage = limit;
-	 end
+    begin
+      error = 1'b1;
+      usage = limit;
+    end
     else
     begin
-	   usage = limit - rd_addr + wr_addr;
-		error = error;	 
-	 end
+      usage = limit - rd_addr + wr_addr;
+      error = error;	 
+    end
   end 
 
 end
